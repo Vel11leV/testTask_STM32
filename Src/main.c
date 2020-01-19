@@ -699,38 +699,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     
     if(huart==&huart1)
     {
-        
-        
-        //strSendUART2(myDataRX1,STRLEN(myDataRX1));
-        osMutexWait(dataMutex01Handle, osWaitForever);
+     
+        //strSendUART2(myDataRX1,STRLEN(myDataRX1));       
            espReplyNewData(*myDataRX1); 
-        osMutexRelease(dataMutex01Handle);
-        
+    
     }
     if(huart==&huart2)
     {
-        //strSendUART2(myDataRX2,STRLEN(myDataRX2));
-        /*
-        uint8_t sub[] ="192";     
-        
-        if(*myDataRX2=='o')
-            espReplyToUART2();   
-        else if(*myDataRX2=='e')
-            espReplyClear();
-        else if(*myDataRX2=='s')
-            {
-                espReplyIsSubstring(sub,3);  
-            }
-        */
-        /*    
-        else
-        {
-          osMutexWait(dataMutex01Handle, osWaitForever);
-           espReplyNewData(*myDataRX2); 
-          osMutexRelease(dataMutex01Handle);
-        }
-        */
-       
+              
     }
   
   /* NOTE: This function Should not be modified, when the callback is needed,
