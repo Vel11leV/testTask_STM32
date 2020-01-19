@@ -480,6 +480,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\MQTTPacket\src\MQTTUnsubscribeServer.c</FilePath>
             </File>
+            <File>
+              <FileName>sensorsI2C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\sensorsI2C.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

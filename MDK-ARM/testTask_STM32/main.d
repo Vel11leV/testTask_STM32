@@ -49,8 +49,6 @@ testtask_stm32\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr
 testtask_stm32\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 testtask_stm32\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 testtask_stm32\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-testtask_stm32\main.o: ../Src/BMP280/bmp280.h
-testtask_stm32\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 testtask_stm32\main.o: ../Src/MQTTPacket/src/MQTTPacket.h
 testtask_stm32\main.o: ../Src/MQTTPacket/src/MQTTConnect.h
 testtask_stm32\main.o: ../Src/MQTTPacket/src/MQTTPublish.h
@@ -59,3 +57,6 @@ testtask_stm32\main.o: ../Src/MQTTPacket/src/MQTTUnsubscribe.h
 testtask_stm32\main.o: ../Src/MQTTPacket/src/MQTTFormat.h
 testtask_stm32\main.o: ../Src/MQTTPacket/src/StackTrace.h
 testtask_stm32\main.o: ../Src/MQTTPacket/src/MQTTPacket.h
+testtask_stm32\main.o: ../Src/sensorsI2C.h
+testtask_stm32\main.o: ../Src/BMP280/bmp280.h
+testtask_stm32\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

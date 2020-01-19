@@ -17,6 +17,7 @@
 "testtask_stm32\mqttsubscribeserver.o"
 "testtask_stm32\mqttunsubscribeclient.o"
 "testtask_stm32\mqttunsubscribeserver.o"
+"testtask_stm32\sensorsi2c.o"
 "testtask_stm32\stm32f4xx_hal_dma.o"
 "testtask_stm32\stm32f4xx_hal_tim_ex.o"
 "testtask_stm32\stm32f4xx_hal_flash_ramfunc.o"
