@@ -120,51 +120,58 @@ void serverThread2(void const * argument);
 /* Private function prototypes -----------------------------------------------*/
 
 
-uint8_t * uint8_tToString(uint8_t value, uint8_t *buffer) //buff =3!!!
+int8_t  uintToString(uint16_t value, uint8_t *buffer, uint8_t lengthOfint) //buff =3!!!
 {
-  
-    int i =2;
-   do
-   {
-      buffer[i] = value % 10 + '0';
-      value /= 10;
-       i--;
-   }
-   while (value != 0);
-   return buffer;  
-}
-uint8_t * uint32_tToString(uint32_t value, uint8_t *buffer) //buff =11!!!
-{
-  
-    int i = 10;
-   do
-   {
-      buffer[i] = value % 10 + '0';
-      value /= 10;
-       i--;
-   }
-   while (value != 0);
-   return buffer;  
+  if(buffer==NULL) return -1;
+   
+if(lengthOfint==8)  //  uint8_t
+    {    
+        int i =2;
+       do
+       {
+          buffer[i] = value % 10 + '0';
+          value /= 10;
+           i--;
+       }
+       while (value != 0);
+       return 3; //string length 3
+    }
+    
+    
+else if (lengthOfint==16) //  uint16_t
+    {
+         int i = 10;
+       do
+       {
+          buffer[i] = value % 10 + '0';
+          value /= 10;
+           i--;
+       }
+       while (value != 0);
+       return 11;  //string length 11
+    }
+
+
 }
 
 void strSendUART1 (uint8_t *str, uint16_t theStrlen )
-{
-   
+{  
+   if(str==NULL) return; 
+    
    if(*str!=NULL)
    HAL_UART_Transmit(&huart1,str, theStrlen,10);
 }
 void strSendUART2 (uint8_t *str, uint16_t theStrlen )
-{
-   
-  //osMutexWait(uart2Mutex02Handle, osWaitForever);  
+{   
+   if(str==NULL) return; 
+    
    if(*str!=NULL)
    HAL_UART_Transmit(&huart2,str,theStrlen,10);
-  //osMutexRelease(uart2Mutex02Handle);
 }
 
 void espReplyNewData(uint8_t chr)
 { 
-  //osMutexWait(dataMutex01Handle, osWaitForever);
+ 
     
     if (espCount<ESPBUF)
     {
@@ -178,13 +185,13 @@ void espReplyNewData(uint8_t chr)
         espCount++;
     }
     
-  //osMutexRelease(dataMutex01Handle);
+
 }
 
 void espReplyToUART2()
 {   
    
-  //osMutexWait(dataMutex01Handle, osWaitForever);
+
     
     int dataSizeInBuffer = 0;
     for(int i=0;i<ESPBUF;i++)
@@ -195,25 +202,23 @@ void espReplyToUART2()
     }
     strSendUART2(espReply,dataSizeInBuffer); 
     
-  //osMutexRelease(dataMutex01Handle);
+
 }
 
 void espReplyClear()
 {
-   //osMutexWait(dataMutex01Handle, osWaitForever);
-    
+   
     for(int i=0;i<ESPBUF;i++)
     {
         espReply[i]=NULL;
     }
     espCount = 0;
-    
-   //osMutexRelease(dataMutex01Handle);
+
 }
 
-uint8_t espReplyIsSubstring(uint8_t *subStr, uint16_t theSubstrlen)
+int8_t espReplyIsSubstring(uint8_t *subStr, uint16_t theSubstrlen)
 {
-  //osMutexWait(dataMutex01Handle, osWaitForever);
+if  ( subStr==NULL) return -1;
     
     for(int i=0;i<(ESPBUF-theSubstrlen+1);i++)
     {
@@ -242,12 +247,13 @@ uint8_t espReplyIsSubstring(uint8_t *subStr, uint16_t theSubstrlen)
         if (i==ESPBUF-theSubstrlen)
                 return 0;
     }    
-    
-  //osMutexRelease(dataMutex01Handle);    
+      
 }
 
-uint8_t sendRequest(uint8_t *request, uint8_t theStrlen)
+int8_t sendRequest(uint8_t *request, uint8_t theStrlen)
 {
+    if(request==NULL) return -1;
+    
     if (theStrlen>ATSENDSIZE){ uint8_t error[] = "ERROR: Message was not sent, it is too long ...\n";  strSendUART2(error,STRLEN(error)); return 0;}
     if (theStrlen==0){ uint8_t error[] = "ERROR: No data to send ...\n";  strSendUART2(error,STRLEN(error)); return 0;}
    
@@ -258,7 +264,7 @@ uint8_t sendRequest(uint8_t *request, uint8_t theStrlen)
     uint8_t _WAIT[] ="Waiting for AT reply ...\n";  
     
     uint8_t numb [3] ={' ',' ',' '};     
-    uint8_tToString(theStrlen,numb); 
+    uintToString(theStrlen,numb,sizeof(theStrlen)); 
     int sizeOfNumb=3;
     for(int i=0;i<3;i++)
     {
@@ -322,8 +328,11 @@ return 1;
 
 
 
-uint8_t sendRequestAnySize(uint8_t *request, uint16_t theStrlen)
+int8_t sendRequestAnySize(uint8_t *request, uint16_t theStrlen)
 {
+    
+    if(request==NULL) return -1;
+    
     uint16_t remainder=0;
     uint16_t whole=0;
     
@@ -348,8 +357,10 @@ uint8_t sendRequestAnySize(uint8_t *request, uint16_t theStrlen)
 }
 
 
-uint8_t SensorBMP280Initialization(BMP280_HandleTypedef * bmp280, I2C_HandleTypeDef *hi2c1,UART_HandleTypeDef *huart, uint8_t *Data, uint16_t size  )
+int8_t SensorBMP280Initialization(BMP280_HandleTypedef * bmp280, I2C_HandleTypeDef *hi2c1,UART_HandleTypeDef *huart, uint8_t *Data, uint16_t size  )
 {
+    if(bmp280==NULL | hi2c1==NULL | huart==NULL | Data==NULL) return -1;
+    
     bmp280_init_default_params(&(bmp280->params));
 	bmp280->addr = BMP280_I2C_ADDRESS_0;
 	bmp280->i2c = hi2c1;
@@ -368,8 +379,11 @@ uint8_t SensorBMP280Initialization(BMP280_HandleTypedef * bmp280, I2C_HandleType
 }
 
 
-uint8_t SensorBMP280GetData(BMP280_HandleTypedef * bmp280, I2C_HandleTypeDef *hi2c1,UART_HandleTypeDef *huart, uint8_t *Data, uint16_t size, float *temperature, float* pressure,float * humidity)
+int8_t SensorBMP280GetData(BMP280_HandleTypedef * bmp280, I2C_HandleTypeDef *hi2c1,UART_HandleTypeDef *huart, uint8_t *Data, uint16_t size, float *temperature, float* pressure,float * humidity)
 {
+    if(bmp280==NULL | hi2c1==NULL | huart==NULL | Data==NULL | temperature==NULL | pressure==NULL ) return -1;
+    
+    
      HAL_Delay(100);
 		while (!bmp280_read_float(bmp280, temperature, pressure, humidity)) {
 			size = sprintf((char *)Data,
@@ -696,7 +710,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if(huart==&huart2)
     {
         //strSendUART2(myDataRX2,STRLEN(myDataRX2));
-        
+        /*
         uint8_t sub[] ="192";     
         
         if(*myDataRX2=='o')
@@ -707,6 +721,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             {
                 espReplyIsSubstring(sub,3);  
             }
+        */
         /*    
         else
         {
@@ -847,10 +862,9 @@ HAL_Delay(2000);
             
   for(;;)
   {
+      
      /*---------Connect to the server and transmit the data---------*/
-
-
-            
+          
     //Connecting to the server           
     strSendUART1(AT_CONNECT_TO_SERVER,STRLEN(AT_CONNECT_TO_SERVER));
     while(espReplyIsSubstring(rep_CONNECT,STRLEN(rep_CONNECT)-1)==0){ 
@@ -883,30 +897,16 @@ len += MQTTSerialize_disconnect(buf + len, buflen - len);
 strSendUART2(NEWLINE,STRLEN(NEWLINE));            
 strSendUART2(buf,len); 
 strSendUART2(NEWLINE,STRLEN(NEWLINE));
-
-            
-   strSendUART1(buf,len); 
-   HAL_Delay(500);             
-/*            
-   for(int i=0;i<10;i++)
-            {
-   HAL_Delay(100);              
-   espReplyToUART2();  
-   espReplyClear(); 
-          }*/
+           
+   strSendUART1(buf,len);  
+   HAL_Delay(200);            
 ////////////////
-
-            
-    //CIPMODE close        
-   strSendUART1(AT_CIPMODECLOSE,STRLEN(AT_CIPMODECLOSE)); //
-   //HAL_Delay(300);   
+     
+   strSendUART1(AT_CIPMODECLOSE,STRLEN(AT_CIPMODECLOSE));  //CIPMODE close   
+     HAL_Delay(200);    
             
 /*---------end Connect to the server and transmit the data---------*/  
-      
-      
-      
-   
-    osDelay(200);    
+ 
   }
   /* USER CODE END serverThread2 */
 }
