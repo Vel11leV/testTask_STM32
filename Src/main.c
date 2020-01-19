@@ -669,7 +669,7 @@ sensorsI2C_BMP280Initialization(  &hi2c1, &huart2, Data, size  );
   for(;;)
   {
 ///////////////////bmp280//////////////////////    
-osMutexWait(uart2Mutex02Handle, osWaitForever);       
+osMutexWait(dataMutex01Handle, osWaitForever);       
 sensorsI2C_BMP280GetData( &hi2c1,&huart2, Data, size, &temperature, &pressure, &humidity);
 osMutexRelease(dataMutex01Handle);
 /////////////////end_bmp280////////////////////////  
@@ -804,7 +804,7 @@ HAL_Delay(2000);
    strSendUART2(NEWLINE,STRLEN(NEWLINE));
             
 ////////////////
-osMutexWait(uart2Mutex02Handle, osWaitForever);               
+osMutexWait(dataMutex01Handle, osWaitForever);               
 uint16_t payloadlen =sprintf((char *)payload,"{\n\"d\":{\n\"myName\":\"STM32\",\n\"temp (C)\": %.2f\n}\n}",temperature); // 
 osMutexRelease(dataMutex01Handle);
 
