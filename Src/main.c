@@ -679,10 +679,11 @@ osMutexRelease(dataMutex01Handle);
   /* USER CODE END 5 */ 
 }
 
+
+
 /* serverThread2 function */
 void serverThread2(void const * argument)
 {
-
 ///////////////////MQTT/////////////////////
  
 MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
@@ -781,51 +782,65 @@ HAL_Delay(2000);
             
   for(;;)
   {
+    int max_attampts = 10;
+    int ok;     
       
-     /*---------Connect to the server and transmit the data---------*/
+/*---------Connect to the server and transmit the data---------*/
           
-    //Connecting to the server           
-    strSendUART1(AT_CONNECT_TO_SERVER,STRLEN(AT_CONNECT_TO_SERVER));
-    while(espReplyIsSubstring(rep_CONNECT,STRLEN(rep_CONNECT)-1)==0){ 
-            strSendUART2(_WAIT_SERVERCON,STRLEN(_WAIT_SERVERCON));
-            HAL_Delay(100);         
-            }
+    //Connecting to the server   
+   for(int i=0;i<max_attampts;i++)
+        {
+        ok=0;
+        strSendUART1(AT_CONNECT_TO_SERVER,STRLEN(AT_CONNECT_TO_SERVER));
+        strSendUART2(_WAIT_SERVERCON,STRLEN(_WAIT_SERVERCON));    
+        HAL_Delay(100);  
+        if(espReplyIsSubstring(rep_CONNECT,STRLEN(rep_CONNECT)-1)==1){ ok = 1; break;}
+        }
    espReplyToUART2();
-   espReplyClear();  
+   espReplyClear();                    
+
+
             
    // CIPMODE (uart<->WiFi) gets ready to start
-   strSendUART1(AT_CIPSEND,STRLEN(AT_CIPSEND));  
-   while(espReplyIsSubstring(rep_CIPSEND,STRLEN(rep_CIPSEND)-1)==0){ 
-            strSendUART2(_WAIT_CIPSEND,STRLEN(_WAIT_CIPSEND));
-            HAL_Delay(100);         
-            }            
+   for(int i=0;i<max_attampts;i++)
+        {
+            if (ok==0) break ;
+        ok=0;
+        strSendUART1(AT_CIPSEND,STRLEN(AT_CIPSEND)); 
+        strSendUART2(_WAIT_CIPSEND,STRLEN(_WAIT_CIPSEND));            
+        HAL_Delay(100);  
+        if(espReplyIsSubstring(rep_CIPSEND,STRLEN(rep_CIPSEND)-1)==1) { ok = 1; break;}   
+        
+        }   
    espReplyToUART2();
    espReplyClear(); //NEWLINE   
-   strSendUART2(NEWLINE,STRLEN(NEWLINE));
-            
-////////////////
-osMutexWait(dataMutex01Handle, osWaitForever);               
-uint16_t payloadlen =sprintf((char *)payload,"{\n\"d\":{\n\"myName\":\"STM32\",\n\"temp (C)\": %.2f\n}\n}",temperature); // 
-osMutexRelease(dataMutex01Handle);
+   
+   if(ok==1)  
+        { 
+        strSendUART2(NEWLINE,STRLEN(NEWLINE));         
+        ////////////////
+        osMutexWait(dataMutex01Handle, osWaitForever);               
+        uint16_t payloadlen =sprintf((char *)payload,"{\n\"d\":{\n\"myName\":\"STM32\",\n\"temp (C)\": %.2f\n}\n}",temperature); // 
+        osMutexRelease(dataMutex01Handle);
 
-            
-uint16_t len = MQTTSerialize_connect(buf, buflen, &data); 
-len += (uint16_t)MQTTSerialize_publish(buf + len, buflen - len, 0, 0, 0, 0, topicString, payload, payloadlen);
-len += MQTTSerialize_disconnect(buf + len, buflen - len);
+                    
+        uint16_t len = MQTTSerialize_connect(buf, buflen, &data); 
+        len += (uint16_t)MQTTSerialize_publish(buf + len, buflen - len, 0, 0, 0, 0, topicString, payload, payloadlen);
+        len += MQTTSerialize_disconnect(buf + len, buflen - len);
 
-strSendUART2(NEWLINE,STRLEN(NEWLINE));            
-strSendUART2(buf,len); 
-strSendUART2(NEWLINE,STRLEN(NEWLINE));
-           
-   strSendUART1(buf,len);  
-   HAL_Delay(200);            
-////////////////
-     
-   strSendUART1(AT_CIPMODECLOSE,STRLEN(AT_CIPMODECLOSE));  //CIPMODE close   
-     HAL_Delay(200);    
-            
+        strSendUART2(NEWLINE,STRLEN(NEWLINE));            
+        strSendUART2(buf,len); 
+        strSendUART2(NEWLINE,STRLEN(NEWLINE));
+                   
+           strSendUART1(buf,len);  
+           HAL_Delay(200);            
+        ////////////////
+             
+           strSendUART1(AT_CIPMODECLOSE,STRLEN(AT_CIPMODECLOSE));  //CIPMODE close   
+           HAL_Delay(200);    
+                    
 /*---------end Connect to the server and transmit the data---------*/  
- 
+         }
   }
   /* USER CODE END serverThread2 */
 }
